@@ -2,3 +2,4 @@ dicompipeline.egg-info
 data
 .pytest_cache
 *.pyc
+*.swp
