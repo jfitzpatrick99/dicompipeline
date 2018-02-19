@@ -95,10 +95,8 @@ be:
   speed by storing the training data on the disk. Currently my solution loads
   the entire dataset into memory which would not work for an incredibly large
   dataset.
-* The documented exit codes are not respected by my solution but fixing this
-  would involve improving the error handling.
-* I would definitely add unit tests, and write integration tests; currently I
-  have a single unit test which just checks that the program entry point works
+* I would definitely add more unit tests, and write additional integration
+  tests.
 * The load_dataset function is a little big so I would probably check to see if
   it could be shrunk down a bit, although I don't think this is a big deal.
 * From a deployment perspective more testing would be needed to make sure that
@@ -106,3 +104,7 @@ be:
   required platforms.
 * I would also look at running the code through one of the many python linters
   that are available and cleaning up some of the imports.
+* Tests that test the main entry point don't validate the output at all because
+  I was not able to get the pytest capsys test fixture to work; I have always
+  had problems with it and it would be a matter of figuring out what I did in
+  the past to make it work here.
