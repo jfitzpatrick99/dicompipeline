@@ -26,11 +26,15 @@ def run_pipeline(X_train, y_train, idir, n_epochs=10, batch_size=8):
   logging.info("Number of batches: {}".format(num_batches))
 
   for i in range(n_epochs):
+    # shuffle the complete dataset on each epoch so that samples used for each
+    # batch are randomly selected.
     X_train, y_train = shuffle(X_train, y_train)
     for j in range(num_batches):
       logging.info("Training on epoch {}, batch {}".format(i+1, j+1))
       batch_start = j * batch_size
       batch_end = batch_start + batch_size
+
+      logging.info("Batch start is {}".format(batch_start))
 
       X_batch = X_train[batch_start:batch_end]
       y_batch = y_train[batch_start:batch_end]
