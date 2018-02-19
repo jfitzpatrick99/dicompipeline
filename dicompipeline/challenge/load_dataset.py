@@ -32,12 +32,13 @@ def load_dataset(data_dir, idir):
   :param data_dir: data directory to load the dataset from
   :param idir: intermediate directory to use for debugging. If set to None then
   no intermediate images are generated.
-  :return: 2D array where each row contains an image and the corresponding
-  contour lines for the image.
+  :return: Two arrays, the first containing the images as numpy arrays and the
+  second containing the contour masks.
   """
   logging.info("Starting pipeline using data from data_dir " + data_dir)
 
-  the_dataset = []
+  images = []
+  i_contour_masks = []
 
   links_filename = os.path.join(data_dir, LINK_FILENAME)
   with open(links_filename, "r") as links_file:
@@ -73,7 +74,7 @@ def load_dataset(data_dir, idir):
 
             # Only select DICOM files have corresponding contour files.
             if os.path.isfile(i_contour_filename):
-              pil_image, pixel_data = pil_image_for_dataset(dataset)
+              pixel_data = pixel_data_for_dataset(dataset)
               width = len(pixel_data[0])
               height = len(pixel_data)
               i_contour_coords = parse_contour_file(i_contour_filename)
@@ -81,6 +82,7 @@ def load_dataset(data_dir, idir):
 
               # If intermediate directory specified, write debug images.
               if idir is not None:
+                pil_image = pil_image_for_dataset(dataset, pixel_data)
                 pil_image_filename = os.path.join(idir,
                   "{0}-{1}-{2:04d}-image.png".format(patient_id,
                   original_id,
@@ -95,7 +97,8 @@ def load_dataset(data_dir, idir):
                   outline=255)
                 pil_image.save(i_contour_image_filename)
 
-              the_dataset.append([pixel_data, i_contour_mask])
+              images.append(pixel_data)
+              i_contour_masks.append(i_contour_mask)
             else:
               logging.debug("No contour file for DICOM file {}".format(dicom_filename))
           else:
@@ -103,20 +106,18 @@ def load_dataset(data_dir, idir):
         else:
           logging.warning("DICOM file {} is invalid.".format(dicom_filename))
 
-  return the_dataset
+  logging.info("Dataset loaded.")
+
+  return images, i_contour_masks
 
 
-def pil_image_for_dataset(dataset):
-  """Generate a pillow image for the given DICOM dataset.
+def pixel_data_for_dataset(dataset):
+  """Get a numpy array representing the image for the given DICOM dataset
+  object.
 
-  Note: This function is largely a direct copy of a function from the pydicom
-  library. See the pydicom file 'contrib/pydicom_PIL.py'.
-
-  :param dataset: DICOM dataset to generate the for.
-  :return: pillow image and corresponding numpy pixel data for the image
+  :param dataset: DICOM dataset to get the pixel data for.
+  :return: numpy array for the DICOM dataset.
   """
-  im = None
-
   intercept = 0.0
   if "RescaleIntercept" in dataset:
     intercept = dataset.RescaleIntercept
@@ -128,6 +129,20 @@ def pil_image_for_dataset(dataset):
   pixel_array = dataset.pixel_array
   if intercept != 0.0 and slope != 0.0:
     pixel_array = image*slope + intercept
+
+  return pixel_array
+
+
+def pil_image_for_dataset(dataset, pixel_data):
+  """Generate a pillow image for the given DICOM dataset.
+
+  Note: This function is largely a direct copy of a function from the pydicom
+  library. See the pydicom file 'contrib/pydicom_PIL.py'.
+
+  :param dataset: DICOM dataset to generate the for.
+  :return: pillow image and corresponding numpy pixel data for the image
+  """
+  im = None
 
   # can only apply LUT if these values exist
   if ('WindowWidth' not in dataset) or ('WindowCenter' not in dataset):
@@ -150,14 +165,14 @@ def pil_image_for_dataset(dataset):
 
     # Recommended to specify all details by
     # http://www.pythonware.com/library/pil/handbook/image.htm
-    im = PIL.Image.frombuffer(mode, size, dataset.PixelData, "raw", mode, 0, 1)
+    im = PIL.Image.frombuffer(mode, size, pixel_data, "raw", mode, 0, 1)
   else:
-    image = get_LUT_value(dataset.pixel_array, dataset.WindowWidth, dataset.WindowCenter)
+    image = get_LUT_value(pixel_data, dataset.WindowWidth, dataset.WindowCenter)
     # Convert mode to L since LUT has only 256 values:
     # http://www.pythonware.com/library/pil/handbook/image.htm
     im = PIL.Image.fromarray(image).convert('L')
 
-  return im, pixel_array
+  return im
 
 
 def get_LUT_value(data, window, level):

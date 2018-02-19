@@ -1,4 +1,5 @@
-"""Setup tools setup module.
+"""
+Setup tools setup module.
 """
 
 from setuptools import setup, find_packages
@@ -17,7 +18,7 @@ setup(
   ],
   entry_points={
     "console_scripts": [
-      "dicompipeline=dicompipeline.challenge.pipeline:main"
+      "dicompipeline=dicompipeline.challenge.pipeline_main:main"
     ]
   },
 )
