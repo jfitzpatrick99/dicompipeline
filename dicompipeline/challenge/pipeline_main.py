@@ -2,23 +2,24 @@
 DICOM cardiac MRI image training pipeline.
 
 Usage:
-  dicompipeline [--idir <idir>] [--log <level>] (--data-dir <data_dir>) 
+  dicompipeline [--log <level>] [--idir <idir>] (--data-dir <data_dir>) 
   dicompipeline (-h | --help)
   dicompipeline --version
 
 Options:
-  -h --help              Show this screen.
-  --version              Show version.
-  --data-dir <data_dir>  Use the given data directory for the source data set.
-  --idir <dir>           Intermediate directory containing intermediate files
-                         for debugging purposes.
   --log <level>          Specify the log level to use, one of "info",
                          "warning", or "debug".
+  --idir <dir>           Intermediate directory containing intermediate files
+                         for debugging purposes. If not specified no
+                         intermediate files are generated.
+  --data-dir <data_dir>  Use the given data directory for the source data set.
+  -h --help              Show this screen.
+  --version              Show version.
 
 Exit Codes:
   0 if no errors occurred.
   1 on user error.
-  2 on an unexpected error, e.g. lack of memory, disk, etc.
+  2 on an unexpected error, e.g. lack of memory, disk, bug, etc.
 """
 from docopt import docopt
 import logging
