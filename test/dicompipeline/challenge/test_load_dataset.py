@@ -1,17 +1,8 @@
 """
 Tests for loading the dataset.
 """
-from os import path, listdir
-from pytest import fixture
+from os import listdir
 from dicompipeline.challenge.load_dataset import load_dataset
-
-
-@fixture
-def data_dir(request):
-  return path.join(str(request.config.rootdir),
-                   "test",
-                   "fixtures",
-                   "test_dataset")
 
 
 def test_can_load_dataset(data_dir):
