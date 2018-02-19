@@ -39,7 +39,7 @@ Running
 
 To run the pipeline, execute the following command:
 
-dicompipeline --data-dir path/to/data
+`dicompipeline --data-dir path/to/data`
 
 Code Layout
 -----------
@@ -47,3 +47,22 @@ Code Layout
 The top-level dicompipeline directory contains the source code for the
 solution.
 The top-level test directory contains tests for the solution.
+
+DICOM and Contour File Parsing
+------------------------------
+
+In order to verify that the dicom files and contour files are being parsed
+correctly, the program can be invoked with a "--idir path/to/debug/dir"
+argument which dumps both the original MRI scans and a modified file where the
+contour line is drawn on top of the corresponding MRI scan.
+
+![alt text](example_images/SCD0000101-SC-HF-I-1-0048-image.png "Example original image")
+![alt text](example_images/SCD0000101-SC-HF-I-1-0048-image_with_i_contour.png "Example image with inner contour line")
+
+The only changes made to the originally supplied parsing code was to move the
+slope and intercept rescaling code to the function that loads the dataset.
+
+Model Training Pipeline
+-----------------------
+
+TODO: complete this section.

@@ -36,24 +36,7 @@ def parse_dicom_file(filename):
 
     try:
         dcm = dicom.read_file(filename)
-        dcm_image = dcm.pixel_array
-
-        try:
-            intercept = dcm.RescaleIntercept
-        except AttributeError:
-            intercept = 0.0
-        try:
-            slope = dcm.RescaleSlope
-        except AttributeError:
-            slope = 0.0
-
-        if intercept != 0.0 and slope != 0.0:
-            dcm_image = dcm_image*slope + intercept
-        dcm_dict = {'pixel_data' : dcm_image}
-
-        if "InstanceNumber" in dcm:
-          dcm_dict["instance_number"] = dcm.InstanceNumber
-        return dcm_dict
+        return dcm
     except InvalidDicomError:
         return None
 
