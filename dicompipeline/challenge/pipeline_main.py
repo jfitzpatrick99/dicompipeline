@@ -28,11 +28,12 @@ from dicompipeline.challenge.pipeline import run_pipeline
 import sys
 import os
 from traceback import format_exc
+from dicompipeline.challenge.version import get_version
 
 
 def main(argv=None):
   arguments = docopt(__doc__,
-                     version="0.1.0-SNAPSHOT",
+                     version=get_version(),
                      options_first=True,
                      help=True)
 

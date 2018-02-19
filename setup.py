@@ -3,9 +3,11 @@ Setup tools setup module.
 """
 from setuptools import setup, find_packages
 
+VERSION="0.1.0-SNAPSHOT"
+
 setup(
   name="dicompipeline",
-  version="0.1.0-SNAPSHOT",
+  version=VERSION,
   description="DICOM cardiac MRI image training pipeline",
   author="John Fitzpatrick",
   packages=find_packages(exclude=["test"]),
