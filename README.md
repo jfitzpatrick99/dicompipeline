@@ -54,7 +54,8 @@ DICOM and Contour File Parsing
 In order to verify that the dicom files and contour files are being parsed
 correctly, the program can be invoked with a "--idir path/to/debug/dir"
 argument which dumps both the original MRI scans and a modified file where the
-contour line is drawn on top of the corresponding MRI scan.
+contour line is drawn on top of the corresponding MRI scan. Example files are
+shown below:
 
 ![alt text](example_images/SCD0000101-SC-HF-I-1-0048-image.png "Example original image")
 ![alt text](example_images/SCD0000101-SC-HF-I-1-0048-image_with_i_contour.png "Example image with inner contour line")
