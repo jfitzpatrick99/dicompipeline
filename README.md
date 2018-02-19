@@ -99,3 +99,5 @@ be:
 * From a deployment perspective more testing would be needed to make sure that
   the setup.py file is correct so that the tool could be installed on the
   required platforms.
+* I would also look at running the code through one of the many python linters
+  that are available and cleaning up some of the imports.
