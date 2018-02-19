@@ -32,10 +32,16 @@ from dicompipeline.challenge.version import get_version
 
 
 def main(argv=None):
+  if argv is None:
+    # When not invoked by tests or from code, get argv from how we were
+    # invoked on the command-line.
+    from sys import argv
+
   arguments = docopt(__doc__,
                      version=get_version(),
                      options_first=True,
-                     help=True)
+                     help=True,
+                     argv=argv[1:])
 
   log_level = arguments["--log"]
   if log_level is None:
@@ -67,6 +73,7 @@ def main(argv=None):
       sys.exit(1)
 
     run_pipeline(images, i_contour_masks, idir)
+    sys.exit(0)
   except Exception as e:
     logging.error("An unexpected error occurred.")
     logging.error(str(e))
