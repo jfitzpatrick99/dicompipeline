@@ -31,7 +31,8 @@ The project can be setup using the following steps:
 
 1. mkvirtualenv dicompipeline
 2. git clone https://github.com/jfitzpatrick99/dicompipeline
-3. pip install -e .
+3. cd dicompipeline
+4. pip install -e .
 
 Running
 -------
