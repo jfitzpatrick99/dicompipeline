@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 setup(
   name="dicompipeline",
   version="0.1.0-SNAPSHOT",
-  description="DICOM MRI image training pipeline",
+  description="DICOM cardiac MRI image training pipeline",
   author="John Fitzpatrick",
   packages=find_packages(exclude=["test"]),
   install_requires=[
