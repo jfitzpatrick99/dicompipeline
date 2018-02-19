@@ -80,7 +80,8 @@ of iterations, batch sizes were correct, etc. Of course as already mentioned
 for part 1 of my solution I drew the contours on the images to make sure the
 masks were correct.
 
-Some deficiencies and/or possible improvements to my code would be:
+Some deficiencies and/or possible improvements to my code given more time would
+be:
 
 * Improve error handling to make it more user friendly, e.g. when loading
   the dataset I would invent some application specific exceptions to trap cases
@@ -91,6 +92,10 @@ Some deficiencies and/or possible improvements to my code would be:
   dataset.
 * The documented exit codes are not respected by my solution but fixing this
   would involve improving the error handling.
-* I would definitely add more unit tests, and write integration tests
+* I would definitely add unit tests, and write integration tests; currently I
+  have a single unit test which just checks that the program entry point works
 * The load_dataset function is a little big so I would probably check to see if
   it could be shrunk down a bit, although I don't think this is a big deal.
+* From a deployment perspective more testing would be needed to make sure that
+  the setup.py file is correct so that the tool could be installed on the
+  required platforms.
