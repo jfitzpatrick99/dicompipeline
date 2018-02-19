@@ -41,6 +41,11 @@ To run the pipeline, execute the following command:
 
 `dicompipeline --data-dir path/to/data`
 
+Running Tests
+-------------
+
+To run the testsuite simply type `pytest` in the main project directory.
+
 Code Layout
 -----------
 
