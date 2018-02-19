@@ -32,9 +32,12 @@ def run_pipeline(X_train, y_train, idir, n_epochs=10, batch_size=8):
     for j in range(num_batches):
       logging.info("Training on epoch {}, batch {}".format(i+1, j+1))
       batch_start = j * batch_size
+      # batch_end might be larger than the number of samples in training array
+      # but python ignores this since it is used in a slice.
       batch_end = batch_start + batch_size
 
       logging.info("Batch start is {}".format(batch_start))
+      logging.info("Batch end is {}".format(batch_end))
 
       X_batch = X_train[batch_start:batch_end]
       y_batch = y_train[batch_start:batch_end]

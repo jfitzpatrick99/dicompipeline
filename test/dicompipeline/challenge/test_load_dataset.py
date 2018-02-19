@@ -1,3 +1,6 @@
+"""
+Tests for loading the dataset.
+"""
 from os import path, listdir
 from pytest import fixture
 from dicompipeline.challenge.load_dataset import load_dataset
