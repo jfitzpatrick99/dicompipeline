@@ -48,8 +48,8 @@ The top-level dicompipeline directory contains the source code for the
 solution.
 The top-level test directory contains tests for the solution.
 
-DICOM and Contour File Parsing
-------------------------------
+Part 1: DICOM and Contour File Parsing
+--------------------------------------
 
 In order to verify that the dicom files and contour files are being parsed
 correctly, the program can be invoked with a "--idir path/to/debug/dir"
@@ -63,7 +63,34 @@ shown below:
 The only changes made to the originally supplied parsing code was to move the
 slope and intercept rescaling code to the function that loads the dataset.
 
-Model Training Pipeline
------------------------
+Part 2: Model Training Pipeline
+-------------------------------
 
-TODO: complete this section.
+After building the data loading pipeline very little was changed to accomodate
+the learning pipeline. The main changes were:
+
+* Return two 1D arrays containing the images and the contour masks instead of
+  one 2D array.
+* Improve efficiency when loading datasets where pillow image objects are not
+  created unless the "--idir" option is provided.
+
+To verify that the model pipeline was working correctly I simply added logging
+statements to ensure that what it was doing made sense, e.g. checked for number
+of iterations, batch sizes were correct, etc. Of course as already mentioned
+for part 1 of my solution I drew the contours on the images to make sure the
+masks were correct.
+
+Some deficiencies and/or possible improvements to my code would be:
+
+* Improve error handling to make it more user friendly, e.g. when loading
+  the dataset I would invent some application specific exceptions to trap cases
+  where the dataset directory is not in the expected format.
+* Depending on requirements there would be opporunities to trade memory for
+  speed by storing the training data on the disk. Currently my solution loads
+  the entire dataset into memory which would not work for an incredibly large
+  dataset.
+* The documented exit codes are not respected by my solution but fixing this
+  would involve improving the error handling.
+* I would definitely add more unit tests, and write integration tests
+* The load_dataset function is a little big so I would probably check to see if
+  it could be shrunk down a bit, although I don't think this is a big deal.
