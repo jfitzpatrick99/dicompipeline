@@ -34,7 +34,7 @@ setup(
   ],
   entry_points={
     "console_scripts": [
-      "dicompipeline=dicompipeline.challenge.pipeline_main:main"
+      "dicompipeline=dicompipeline.main:main"
     ]
   },
 )

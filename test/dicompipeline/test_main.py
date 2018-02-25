@@ -26,17 +26,6 @@ def test_pipeline_main_basic_invocation(dicompipeline, data_dir):
   assert return_code == 0, "non-zero return code for basic invocation"
 
 
-def test_pipeline_main_invocation_with_idir(dicompipeline, data_dir, tmpdir):
-  excinfo = raises(SystemExit,
-    lambda: dicompipeline(argv=["dicompipeline",
-                                "--idir", str(tmpdir),
-                                "--data-dir", data_dir]))
-
-  return_code = excinfo.value.args[0]
-
-  assert return_code == 0, "non-zero return code for invocation with idir"
-
-
 def test_pipeline_main_non_existent_data_dir(dicompipeline):
   excinfo = raises(SystemExit,
     lambda: dicompipeline(argv=["dicompipeline", "--data-dir", "foo"]))
@@ -45,13 +34,3 @@ def test_pipeline_main_non_existent_data_dir(dicompipeline):
 
   assert return_code == 1, "wrong return code for non-existent data dir"
 
-
-def test_pipeline_main_non_existent_idir(dicompipeline, data_dir):
-  excinfo = raises(SystemExit,
-    lambda: dicompipeline(argv=["dicompipeline",
-                                "--idir", "foo",
-                                "--data-dir", data_dir]))
-
-  return_code = excinfo.value.args[0]
-
-  assert return_code == 1, "wrong return code for non-existent idir"

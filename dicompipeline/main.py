@@ -1,16 +1,13 @@
-"""
-DICOM cardiac MRI image training pipeline.
+"""DICOM cardiac MRI image training pipeline.
 
 Usage:
-  dicompipeline [--log <level>] [--idir <idir>] (--data-dir <data_dir>) 
+  dicompipeline [--log <level>] (--data-dir <data_dir>) 
   dicompipeline (-h | --help)
   dicompipeline --version
 
 Options:
   --log <level>          Specify the log level to use, one of "info",
                          "warning", or "debug".
-  --idir <dir>           Intermediate directory containing intermediate files
-                         for debugging purposes. If not specified no
                          intermediate files are generated.
   --data-dir <data_dir>  Use the given data directory for the source data set.
   -h --help              Show this screen.
@@ -21,14 +18,16 @@ Exit Codes:
   1 on user error.
   2 on an unexpected error, e.g. lack of memory, disk, bug, etc.
 """
-from docopt import docopt
+import asyncio
 import logging
-from dicompipeline.challenge.load_dataset import load_dataset
-from dicompipeline.challenge.pipeline import run_pipeline
-import sys
 import os
+import sys
+
+from docopt import docopt
+from dicompipeline.dataset import Dataset
+from dicompipeline.pipeline import Pipeline
+from dicompipeline.version import get_version
 from traceback import format_exc
-from dicompipeline.challenge.version import get_version
 
 
 def main(argv=None):
@@ -59,20 +58,25 @@ def main(argv=None):
     logging.error("The specified data directory '{}' does not exist.".format(data_dir))
     sys.exit(1)
 
-  idir = arguments["--idir"]
-  if idir is not None and not os.path.isdir(idir):
-    logging.error("The specified intermediate directory '{}' does not exist.".format(idir))
-    sys.exit(1)
-
   try:
-    images, i_contour_masks = load_dataset(data_dir, idir)
+    dicom_dir = os.path.join(data_dir, "dicoms")
+    i_contour_dir = os.path.join(data_dir, "contourfiles")
+    links_filename = os.path.join(data_dir, "link.csv")
 
-    if len(images) == 0:
+    dataset = Dataset.load_dataset(
+      dicom_dir,
+      i_contour_dir,
+      links_filename)
+
+    if dataset.size() == 0:
       logging.error("No input images and contour masks were found in the data directory.")
       logging.error("This could happen if no contour files match any of the DICOM files even if there are images and contour files in the data directory.")
       sys.exit(1)
 
-    run_pipeline(images, i_contour_masks, idir)
+    loop = asyncio.get_event_loop()
+    pipeline = Pipeline(dataset, loop=loop)
+    pipeline.train()
+
     sys.exit(0)
   except Exception as e:
     logging.error("An unexpected error occurred.")
