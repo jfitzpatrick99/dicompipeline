@@ -175,23 +175,17 @@ module.
 
 ### If the pipeline was going to be run on millions of images, and speed was paramount, how would you parallelize it to run as fast as possible?
 
-I would modify the dataset loading pipeline so that rather than loading the
-data in the directories inside the link.csv file serially, I would do this in
-parallel. To get even more parallelism it would be possible to also divide the
-files corresponding to each row of the "link.csv" file into batches and load
-each of those batches in parallel.
-
 I would experiment with two approaches to loading the data: coroutines or
 separate OS processes. I would also look at loading as much data into memory
 in advance of it being processed. Of course loading too much data could lead
 to the machine using swap which could jeopordize memory needed for the actual
 work of doing various computations so some tuning would be needed here.
-Currently in my solution before the pipeline can run some work is done to at
+In my solution, before the pipeline can run, some work is done to at
 least find out which files should be part of the dataset. This is done for
 two reasons:
 
-1. Need to know which files form the dataset so that random samples can be
-selected.
+1. Need to know which files form the dataset so that it easier to select random
+samples when loading the data.
 2. Some DICOM files have no matching contour files and shifting this work
 to be done during dataset iteration might incur a significant performance
 pentalty (or unneeded memory overhead).
@@ -219,7 +213,9 @@ filenames are removed as they are iterated on so my solution is speedy but
 comes at a cost of 4 GB of memory just to load the dataset.  As mentioned above
 it would possible to come up with a solution which did not do this but then
 this would likely be slower since more disk seeks would be needed to find the
-relevant files on disk when loading the batches.
+relevant files on disk when loading the batches. Another option would be to
+generate a second "filtered" dataset on disk up front which would use more disk
+space but save having to load all of the filenames into memory.
 
 ### If this pipeline were parallelized, what kinds of error checking and/or safeguards, if any, would you add into the pipeline?
 
@@ -234,6 +230,8 @@ with debugging. Further to this I would consider adding functionality so that
 the user could specify which files should be skipped or even to keep going even
 if one or more files could not be loaded. For large, messy datasets this would
 be a requirement.
+
+And in fact the above safeguards are part of my pipeline.
 
 Part 2: Model Training Pipeline
 -------------------------------
@@ -291,18 +289,8 @@ before things go to far.
 
 Yes, I did make some changes to the pipeline. Instead of loading all of the
 data up front, the changed code scans the file system for files that should
-be loaded as part of the dataset. Of course this means there must be at least
-enough memory to hold the filenames for all of the files of interest in memory
-at once. If there was not even enough memory for this due to the sheer number
-of files I could imagine making the class implementing the dataset iterator,
-(DatasetIter) more sophisticated so that it would randomly choose the next
-sample by first randomly selecting a row from the link csv file, finding the
-corresponding DICOM directory for that row, and then randomly selecting a file
-from that directory and repeating this process until a corresponding contour
-file was found. This approach would still require some kind of mechanism to
-keep track of previously processed DICOM files but doing this would use less
-memory than my current approach since I currently store both the paths to the
-DICOM files and the contour files in memory.
+be loaded as part of the dataset. The answers to the questions in part 1 do
+a detailed analysis of the trade-offs here.
 
 ### How did you verify that the pipeline was working correctly?
 
