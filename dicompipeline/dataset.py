@@ -30,9 +30,9 @@ class Dataset:
 
   def __init__(self, tuples):
     """Initialize the dataset with the given array of tuples where each tuple
-    has two entries, the first being a 2D numpy array representing the cardiac
-    MRI and the second being a 2D numpy array of boolean values representing
-    the inner contour of the left ventricle of the corresponding image.
+    has two entries, the first being the DICOM filename for the tuple and
+    the second being the file containing the inner contours for the
+    corresponding DICOM file.
 
     :param tuples: 2-tuples for the dataset.
     :return: Dataset instance.

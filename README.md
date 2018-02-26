@@ -208,6 +208,19 @@ OS processes may not result in a huge speed-up if the data loading process is
 massively IO bound due to a slow disk for example. If separate OS processes
 were used, this could be implemented using the python "multiprocessing" module.
 
+Note about classic memory vs speed tradeoff:
+
+Lets suppose this pipeline were to be used to process something like 1 million
+images. Also suppose that filenames are on the order of 100's of bytes long.
+Since my approach loads the filenames into memory, my solution would consume
+about 10^6 * 100 * 2 = 2 GB of memory (roughly). As it happens I also duplicate
+this list since during each iteration filenames in the list of available
+filenames are removed as they are iterated on so my solution is speedy but
+comes at a cost of 4 GB of memory just to load the dataset.  As mentioned above
+it would possible to come up with a solution which did not do this but then
+this would likely be slower since more disk seeks would be needed to find the
+relevant files on disk when loading the batches.
+
 ### If this pipeline were parallelized, what kinds of error checking and/or safeguards, if any, would you add into the pipeline?
 
 I would add safeguards to make sure that the process (or thread) used to load
