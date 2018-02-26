@@ -71,7 +71,7 @@ dataset and pipeline. In particular, with this approach the pipeline class does
 not need to be concerned with details about where the dataset came, the data
 format and how the data is loaded.
 
-## Dataset Module
+### Dataset Module
 
 The dataset module consists of the following:
 
@@ -131,7 +131,7 @@ if other developers modify them to look at class state where there is no need
 to.
 
 
-## Pipeline Module
+### Pipeline Module
 
 The pipeline module is where the batches of the data produced by the dataset
 class are processed.
@@ -155,7 +155,7 @@ is that to trade memory for speed this value can be set higher.
 Part 1: DICOM and Contour File Parsing
 --------------------------------------
 
-## How did you verify that you are parsing the contours correctly?
+### How did you verify that you are parsing the contours correctly?
 
 In order to verify that the dicom files and contour files are being parsed
 correctly, the program can be invoked with a "--idir path/to/debug/dir"
@@ -166,14 +166,14 @@ shown below:
 ![alt text](example_images/SCD0000101-SC-HF-I-1-0048-image.png "Example original image")
 ![alt text](example_images/SCD0000101-SC-HF-I-1-0048-image_with_i_contour.png "Example image with inner contour line")
 
-## What changes did you make to the functions that we provided, if any, in order to integrate them into the production code base?
+### What changes did you make to the functions that we provided, if any, in order to integrate them into the production code base?
 
 I modified the "parse_dicom_file" file function to not do the slope and
 intercept rescaling so that I could parse dicom files independently of having
 this done. The provided parsing functions were also moved into my "dataset"
 module.
 
-## If the pipeline was going to be run on millions of images, and speed was paramount, how would you parallelize it to run as fast as possible?
+### If the pipeline was going to be run on millions of images, and speed was paramount, how would you parallelize it to run as fast as possible?
 
 I would modify the dataset loading pipeline so that rather than loading the
 data in the directories inside the link.csv file serially, I would do this in
@@ -181,15 +181,34 @@ parallel. To get even more parallelism it would be possible to also divide the
 files corresponding to each row of the "link.csv" file into batches and load
 each of those batches in parallel.
 
+I would experiment with two approaches to loading the data: coroutines or
+separate OS processes. I would also look at loading as much data into memory
+in advance of it being processed. Of course loading too much data could lead
+to the machine using swap which could jeopordize memory needed for the actual
+work of doing various computations so some tuning would be needed here.
+Currently in my solution before the pipeline can run some work is done to at
+least find out which files should be part of the dataset. This is done for
+two reasons:
+
+1. Need to know which files form the dataset so that random samples can be
+selected.
+2. Some DICOM files have no matching contour files and shifting this work
+to be done during dataset iteration might incur a significant performance
+pentalty (or unneeded memory overhead).
+
+If the complete list of files making up the dataset can fit into memory (or
+at least not use so much memory there is nothing left for much else), this is
+the best approach.
+
 Note about the GIL (Global Interpreter Lock):
 
 Due to the "GIL" (Global Interpreter Lock) in python the parallelism here may
 need to be implemented via separate OS processes. That said, using separate
 OS processes may not result in a huge speed-up if the data loading process is
-IO bound due to a slow disk for example. If separate OS processes were used,
-this could be implemented using the python "multiprocessing" module.
+massively IO bound due to a slow disk for example. If separate OS processes
+were used, this could be implemented using the python "multiprocessing" module.
 
-## If this pipeline were parallelized, what kinds of error checking and/or safeguards, if any, would you add into the pipeline?
+### If this pipeline were parallelized, what kinds of error checking and/or safeguards, if any, would you add into the pipeline?
 
 I would add safeguards to make sure that the process (or thread) used to load
 each chunk of data succeeded, and if a chunk failed I would have a facility in
@@ -206,19 +225,21 @@ be a requirement.
 Part 2: Model Training Pipeline
 -------------------------------
 
-## How did you choose to load each batch of data asynchronously, and why did you choose that method? Were there other methods that you considered - what are the pros/cons of each?
+### How did you choose to load each batch of data asynchronously, and why did you choose that method? Were there other methods that you considered - what are the pros/cons of each?
 
 I chose to load each batch of data asynchronously using coroutines and the
 producer/consumer pattern. I chose this approach because it is very obvious
 as to how it works, it is suitable for IO bound processes such as what we have
 with this particular problem. I also considered using the python multiprocess
 module to load the data in a completely separate OS process however in testing
-I found it to be slightly slower than the coroutine approach. I suspect this
-might be due to the overhead of creating a new process to load the data on
-each epoch. A more sophisticated approach would be to re-use a single process
-each time although this would add some additional complexity. Also in my
-experience the python multiprocess module has some strange failure modes which
-makes debugging challening.
+I found it to be slightly slower than the coroutine approach. The sight
+increase in slowness could simply be due to the fact that I don't have a real
+training pipeline in place. Also, I suspect the slowness in this case  might be
+due to the overhead of creating a new process to load the data on each epoch. A
+more sophisticated approach would be to re-use a single process each time
+although this would add some additional complexity. Also in my experience the
+python multiprocess module has some strange failure modes which makes debugging
+challening.
 
 Pros of coroutines:
 
@@ -244,7 +265,7 @@ Cons of separate OS processes:
   SIGINT to a program that uses this module has strange behaviour I have not
   been able to track down.
 
-## What kinds of error checking and/or safeguards, if any, did you build into this part of the pipeline to prevent the pipeline from crashing when run on thousands of studies?
+### What kinds of error checking and/or safeguards, if any, did you build into this part of the pipeline to prevent the pipeline from crashing when run on thousands of studies?
 
 The code that loads the individual samples is wrapped in a generic exception
 handler that logs which files could not be loaded, the exception message and
@@ -253,7 +274,7 @@ sanity checks are done to make sure that the required directories exist. While
 these checks don't protect against all errors they will help find mistakes
 before things go to far.
 
-## Did you change anything from the pipelines built in Parts 1 to better streamline the pipeline built in this part? If so, what? If not, is there anything that you can imagine changing in the future?
+### Did you change anything from the pipelines built in Parts 1 to better streamline the pipeline built in this part? If so, what? If not, is there anything that you can imagine changing in the future?
 
 Yes, I did make some changes to the pipeline. Instead of loading all of the
 data up front, the changed code scans the file system for files that should
@@ -270,12 +291,12 @@ keep track of previously processed DICOM files but doing this would use less
 memory than my current approach since I currently store both the paths to the
 DICOM files and the contour files in memory.
 
-## How did you verify that the pipeline was working correctly?
+### How did you verify that the pipeline was working correctly?
 
 To verify that the pipeline was working correctly I wrote log statements to log
 what it was doing and I also wrote some basic unit tests.
 
-## Given the pipeline you have built, can you see any deficiencies that you would change if you had more time? If not, can you think of any improvements/enhancements to the pipeline that you could build in?
+### Given the pipeline you have built, can you see any deficiencies that you would change if you had more time? If not, can you think of any improvements/enhancements to the pipeline that you could build in?
 
 Some deficiencies and/or possible improvements to my code given more time would
 be:
