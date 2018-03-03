@@ -158,10 +158,10 @@ class DatasetIter:
     while next_sample is None:
       if len(self._tuples) > 0:
         if self._randomized:
-          next_tuple = self._tuples.pop()
-        else:
           n = randint(0, len(self._tuples))
           next_tuple = self._tuples.pop(n)
+        else:
+          next_tuple = self._tuples.pop()
 
         dicom_filename = None
         i_contour_filename = None
